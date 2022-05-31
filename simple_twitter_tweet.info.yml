@@ -1,0 +1,8 @@
+name: Simple Twitter Tweet
+type: module
+description: 'Tweet content in your twitter acount'
+package: Custom
+core: 8.x
+core_version_requirement: ^8 || ^9
+dependencies:
+  - entity_events:entity_events
