@@ -1,11 +1,11 @@
 services:
 #  simple_twitter_tweet.subscriber:
-#    class: Drupal\simpleTwitterTweet\EventSubscriber\SttNewContentSuscriber
+#    class: Drupal\simple_twitter_tweet\EventSubscriber\SttNewContentSuscriber
 #    tags:
 #      - {name: event_subscriber}
 #
   simple_twitter_tweet.config_manager:
-    class:  Drupal\simpleTwitterTweet\Config\ConfigManager
+    class:  Drupal\simple_twitter_tweet\Config\ConfigManager
 
   simple_twitter_tweet.twitter_wrapper:
-    class:  Drupal\simpleTwitterTweet\Utils\TwitterWrapper
+    class:  Drupal\simple_twitter_tweet\Utils\TwitterWrapper

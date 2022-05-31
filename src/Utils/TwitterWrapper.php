@@ -1,6 +1,6 @@
 <?php 
 
-namespace Drupal\simpleTwitterTweet\Utils;
+namespace Drupal\simple_twitter_tweet\Utils;
 
 use \Drupal\node\NodeInterface;
 
@@ -73,7 +73,7 @@ class TwitterWrapper
 
   private static function getFieldsFromEntity(NodeInterface $entity){
     /**
-     * @var \Drupal\simpleTwitterTweet\Config\ConfigManager $config_manager 
+     * @var \Drupal\simple_twitter_tweet\Config\ConfigManager $config_manager 
      */
     $config_manager = \Drupal::service('simple_twitter_tweet.config_manager');
     $tweetContent = new  stdClass();

@@ -1,5 +1,5 @@
 <?php
-namespace Drupal\simpleTwitterTweet\EventSubscriber;
+namespace Drupal\simple_twitter_tweet\EventSubscriber;
 
 use Drupal\entity_events\Event\EntityEvent;
 use Drupal\entity_events\EventSubscriber\EntityEventInsertSubscriber;
@@ -26,7 +26,7 @@ class SttNewContentSuscriber extends EntityEventInsertSubscriber {
         
         $publish = $entity->{$social_publish}->value;
         if($publish->value === ''){
-          /** @var Drupal\simpleTwitterTweet\Utils\TwitterWrapper $twitter */
+          /** @var Drupal\simple_twitter_tweet\Utils\TwitterWrapper $twitter */
           $twitter = \Drupal::service('simple_twitter_tweet.twitter_wrapper');
           $twitter::tweetEntity($entity);
         }

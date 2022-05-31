@@ -1,5 +1,5 @@
 <?php
-namespace Drupal\simpleTwitterTweet\Config;
+namespace Drupal\simple_twitter_tweet\Config;
 
 class ConfigManager{
 
