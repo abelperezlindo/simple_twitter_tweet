@@ -321,7 +321,7 @@ class SttConfigurationForm extends ConfigFormBase {
       }
 
       if($trigger['#type'] === 'submit' && $trigger['#id'] == 'edit-submit'){
-        $config_manager::setAll($form_state->getValues());
+        $config_manager::setMultiple($form_state->getValues());
         return parent::submitForm($form, $form_state);
       }   
     }
