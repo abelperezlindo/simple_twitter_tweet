@@ -145,7 +145,7 @@ class TwitterWrapper
       $config['twitter_access_token'], 
       $config['twitter_access_token_secret']
     );
-
+    $tw->setTimeouts(10, 15);
     $tw->setApiVersion('2');
 
     $uid = explode('-', $config['twitter_access_token'])[0];
@@ -163,6 +163,8 @@ class TwitterWrapper
         return t('Ok, @user.', ['@user' => $data->username]);
       }
 
+    } else {
+      return isset($content->title) ? t($content->title) : 'Ocurrio un problema';
     }
   }
   

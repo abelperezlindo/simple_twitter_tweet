@@ -30,9 +30,9 @@ class ConfigManager{
    * get values of multiples variables from state
    */
   public static function getMultiple(array $keys){
-    $result = $keys;
+    $result = [];
     foreach($result as $key => $value){
-      $result[$key] = self::get($key);
+      $result[$value] = self::get($value);
     }
     return $result;
   }
