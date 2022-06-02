@@ -48,7 +48,7 @@ class TwitterWrapper
       $config['twitter_access_token_secret'],
     );
     $twitter->setTimeouts(25, 15);
-    $twitter->setApiVersion('2');
+    //$twitter->setApiVersion('2');
     $status = [];
     if(!empty($tweetContent->url)){
       // calculate chars an concat to $tweetContent->text
@@ -65,9 +65,11 @@ class TwitterWrapper
       if ($twitter->getLastHttpCode() == 200) {
           // Tweet posted successfully
           \Drupal::logger('simple_twitter_tweet')->error('New tweet created');
-      } else {
+      } else if(isset($statues->errors)) {
           // Handle error case
-          \Drupal::logger('simple_twitter_tweet')->error('an error has occurred');
+          \Drupal::logger('simple_twitter_tweet')->error('an error has occurred: ' . $statues->errors[0]->message );
+      } else {
+        \Drupal::logger('simple_twitter_tweet')->error('an error has occurred' );
       }
     } catch(\Exception $e) {
       \Drupal::logger('simple_twitter_tweet')->error($e->getMessage());
