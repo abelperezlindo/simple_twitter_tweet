@@ -31,7 +31,7 @@ class ConfigManager{
    */
   public static function getMultiple(array $keys){
     $result = [];
-    foreach($result as $key => $value){
+    foreach($keys as $key => $value){
       $result[$value] = self::get($value);
     }
     return $result;

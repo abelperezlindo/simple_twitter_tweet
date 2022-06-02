@@ -47,6 +47,7 @@ class TwitterWrapper
       $config['twitter_access_token'],
       $config['twitter_access_token_secret'],
     );
+    $twitter->setTimeouts(25, 15);
     $twitter->setApiVersion('2');
     $status = [];
     if(!empty($tweetContent->url)){
@@ -54,19 +55,24 @@ class TwitterWrapper
       
     }
 
-
-
-    $statues = $twitter->post(
-      "statuses/update", 
-      [
-        "status" => $tweetContent->text
-      ]
-    );
-    if ($twitter->getLastHttpCode() == 200) {
-        // Tweet posted successfully
-    } else {
-        // Handle error case
+    try {
+      $statues = $twitter->post(
+        "statuses/update", 
+        [
+          "status" => $tweetContent->text
+        ]
+      );
+      if ($twitter->getLastHttpCode() == 200) {
+          // Tweet posted successfully
+          \Drupal::logger('simple_twitter_tweet')->error('New tweet created');
+      } else {
+          // Handle error case
+          \Drupal::logger('simple_twitter_tweet')->error('an error has occurred');
+      }
+    } catch(\Exception $e) {
+      \Drupal::logger('simple_twitter_tweet')->error($e->getMessage());
     }
+   
 
   }
   
@@ -76,9 +82,10 @@ class TwitterWrapper
      * @var \Drupal\simple_twitter_tweet\Config\ConfigManager $config_manager 
      */
     $config_manager = \Drupal::service('simple_twitter_tweet.config_manager');
+    $config = $config_manager::getAll();
     $tweetContent = new  stdClass();
 
-    if(!empty($config['text']) && $entity->hasField($config['text'])){
+    if(!empty($config['body']) && $entity->hasField($config['body'])){
 
       $body =  $entity->{$config['body']};
       $field_type = $body->getFieldDefinition()->getType();
