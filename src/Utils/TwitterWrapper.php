@@ -130,12 +130,12 @@ class TwitterWrapper
   public static function testApiAccess($config = []){
     $config_manager = \Drupal::service('simple_twitter_tweet.config_manager');
     if(empty($config)){
-      $config =  $config_manager::getMultiple([
-        'twitter_consumer_key',
-        'twitter_consumer_secret',
-        'twitter_access_token',
-        'twitter_access_token_secret',
-      ]);
+      $config = [
+        'twitter_consumer_key'        => $config_manager::get('twitter_consumer_key'),
+        'twitter_consumer_secret'     => $config_manager::get('twitter_consumer_secret'),
+        'twitter_access_token'        => $config_manager::get('twitter_access_token'),
+        'twitter_access_token_secret' => $config_manager::get('twitter_access_token_secret'),
+      ];
     }
 
 

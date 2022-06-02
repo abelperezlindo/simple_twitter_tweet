@@ -32,7 +32,7 @@ class ConfigManager{
   public static function getMultiple(array $keys){
     $result = $keys;
     foreach($result as $key => $value){
-      $value = self::get($key);
+      $result[$key] = self::get($key);
     }
     return $result;
   }
