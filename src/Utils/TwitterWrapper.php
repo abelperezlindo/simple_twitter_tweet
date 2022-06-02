@@ -14,7 +14,7 @@ class TwitterWrapper
   /**
    * tweet a drupal node type entity
    */
-  public static function tweetEntity(NodeInterface|string $entity){
+  public static function tweetEntity($entity){
     
     $tweetContent = new stdClass();
     if(gettype($entity) === 'string'){
