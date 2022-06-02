@@ -317,7 +317,8 @@ class SttConfigurationForm extends ConfigFormBase {
           'twitter_access_token_secret' => $form_state->getValue('twitter_access_token_secret')
         ]);
         $twitter = \Drupal::service('simple_twitter_tweet.twitter_wrapper');
-        $twitter::testApiAccess();
+        \Drupal::messenger()->addMessage($twitter::testApiAccess());
+        
       }
 
       if($trigger['#type'] === 'submit' && $trigger['#id'] == 'edit-submit'){

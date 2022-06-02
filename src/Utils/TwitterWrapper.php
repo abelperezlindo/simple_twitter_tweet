@@ -152,18 +152,15 @@ class TwitterWrapper
     $content = $tw->get('users', ['ids' => $uid]);
     if(isset($content->errors)){
       foreach($content->errors as $error){
-        \Drupal::messenger()->addWarning(
-          t(
+      
+        return  t(
             'Account verification failed, Twitter returned the following Error code @error_code: "@error_msg".',
             ['@error_code' => $error->code, '@error_msg' => $error->message]
-          )
         );
-        return false;
       }
     } elseif(isset($content->data)){
       foreach($content->data as $data){
-        \Drupal::messenger()->addStatus(t('Ok, @user.', ['@user' => $data->username]));
-        return $data->username;
+        return t('Ok, @user.', ['@user' => $data->username]);
       }
 
     }
