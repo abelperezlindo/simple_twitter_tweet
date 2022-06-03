@@ -1,6 +1,8 @@
 <?php
 namespace Drupal\simple_twitter_tweet\Config;
 
+use Drupal\node\Entity\NodeType;
+
 class ConfigManager{
 
   public const TITLE_ALLOWED_FIELDS_TYPE = ['string', 'text'];
@@ -97,12 +99,14 @@ class ConfigManager{
   }
 
   public static function getNodeTypesIds(){
-    $types = [];
-    $contentTypes = \Drupal::service('entity_type.manager')->getStorage('node_type')->loadMultiple();
-    foreach ($contentTypes as $contentType) {
-        $types[$contentType->id()] = $contentType->label();
+ 
+    $node_types = NodeType::loadMultiple();
+    // If you need to display them in a drop down.
+    $options = [];
+    foreach ($node_types as $node_type) {
+      $options[$node_type->id()] = $node_type->label();
     }
-    return $types;
+    return $options;
   }
 
   public static function getImageStylesOptions(){

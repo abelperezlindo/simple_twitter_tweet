@@ -25,7 +25,7 @@ class TwitterWrapper
       $tweetContent = self::getFieldsFromEntity($entity);
     }
 
-    self::tweet($tweetContent); 
+    return self::tweet($tweetContent); 
   }
 
   /**
@@ -55,7 +55,7 @@ class TwitterWrapper
     //$twitter->setApiVersion('2');
     $parameters = [];
 
-    if($config['body_concat_url'] && !empty($tweetContent->url)){
+    if($config['body_concat_url'] == 1 && !empty($tweetContent->content_url)){
       // calculate chars an concat to $tweetContent->text
       $link_char_number = 23;
       $max_character = 280; 
@@ -63,27 +63,22 @@ class TwitterWrapper
       if(strlen($tweetContent->text) > $text_char_num){
 
         $tweetContent->text = substr($tweetContent->text, 0, $text_char_num);
-        $tweetContent->text .= $tweetContent->url;
+        $tweetContent->text  .=  ' ' . $tweetContent->content_url;
         $parameters['status'] = $tweetContent->text;
       }
       else {
         $tweetContent->text = substr($tweetContent->text, 0, $max_character);
-        $parameters['status'] = $tweetContent->text;
+        $parameters['status'] = $tweetContent->text . ' ' . $tweetContent->content_url;
       }
     }
+    else {
+      $max_character = 280; 
+      $tweetContent->text = substr($tweetContent->text, 0, $max_character);
+      $parameters['status'] = $tweetContent->text;
+    }
 
-    if(!empty($tweetContent->image_url)){
-        /*
-        $connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, $access_token, $access_token_secret);
-        $media1 = $connection->upload('media/upload', ['media' => '/path/to/file/kitten1.jpg']);
-        $media2 = $connection->upload('media/upload', ['media' => '/path/to/file/kitten2.jpg']);
-        $parameters = [
-            'status' => 'Meow Meow Meow',
-            'media_ids' => implode(',', [$media1->media_id_string, $media2->media_id_string])
-        ];
-        $result = $connection->post('statuses/update', $parameters);
-        */
-        $media = $twitter->upload('media/upload', ['media' => $tweetContent->image_url]);
+    if(!empty($tweetContent->image_path)){
+        $media = $twitter->upload('media/upload', ['media' => $tweetContent->image_path]);
         if(!empty($media->media_id_string)){
           $parameters['media_ids'] = (string)$media->media_id_string;
         }
@@ -97,7 +92,8 @@ class TwitterWrapper
       );
       if ($twitter->getLastHttpCode() == 200) {
           // Tweet posted successfully
-          \Drupal::logger('simple_twitter_tweet')->error('New tweet created');
+          \Drupal::logger('simple_twitter_tweet')->notice('New tweet created');
+          return true;
       } else if(isset($statues->errors)) {
           // Handle error case
           \Drupal::logger('simple_twitter_tweet')->error('an error has occurred: ' . $statues->errors[0]->message );
@@ -106,9 +102,10 @@ class TwitterWrapper
       }
     } catch(\Exception $e) {
       \Drupal::logger('simple_twitter_tweet')->error($e->getMessage());
+      return false;
     }
    
-
+    return false;
   }
   
 
@@ -137,10 +134,9 @@ class TwitterWrapper
     }
 
     if(!empty($config['image']) && $entity->hasField($config['image'])){
-      $message[] = '<div class="post-preview-img" title="Post image">';
 
       /** @var \Drupal\file\Plugin\Field\FieldType\FileFieldItemList $ref_list */
-      $ref_list = $entity->{$config['body']}->referencedEntities(); 
+      $ref_list = $entity->{$config['image']}->referencedEntities(); 
       if(isset($ref_list[0])){
         /** @var \Drupal\file\Entity\File $file */
         $file_uri   = $ref_list[0]->getFileUri();
@@ -148,12 +144,16 @@ class TwitterWrapper
 
         if(!empty($config['image_style'])){
           $image_uri = \Drupal\image\Entity\ImageStyle::load($config['image_style'])
-            ->buildUrl($file_uri);
+            ->buildUri($file_uri);
         }
-
-        if(\Drupal::hasService('file_url_generator')) {
-          $generator = \Drupal::service('file_url_generator');
-          $tweetContent->image_url  = $generator->generateAbsoluteString($image_uri);
+        /** @var \Drupal\Core\StreamWrapper\StreamWrapperManager $stream_wrapper_manager */
+        $stream_wrapper_manager = \Drupal::service('stream_wrapper_manager');
+        //->getViaUri($image_uri);
+        /** @var \Drupal\Core\StreamWrapper\PublicStream $image_path  */
+        $image_path = $stream_wrapper_manager->getViaUri($image_uri);
+        //$tweetContent->image_path = $stream_wrapper_manager->realpath();
+        if($image_path !== FALSE){
+          $tweetContent->image_path = str_replace('public://', $image_path->getDirectoryPath() . '/', $image_uri);
         }
       } 
     }
