@@ -3,9 +3,11 @@
 namespace Drupal\simple_twitter_tweet\Utils;
 
 use \Drupal\node\NodeInterface;
+use \Drupal\Component\Utility\Html;
 
 use \Abraham\TwitterOAuth\TwitterOAuth;
 use stdClass;
+use Symfony\Component\Validator\Constraints\Length;
 
 class TwitterWrapper
 {
@@ -40,6 +42,8 @@ class TwitterWrapper
       'twitter_consumer_secret',
       'twitter_access_token',
       'twitter_access_token_secret',
+      'body_concat_url',
+
     ]);
     $twitter = new TwitterOAuth(
       $config['twitter_consumer_key'],
@@ -49,18 +53,47 @@ class TwitterWrapper
     );
     $twitter->setTimeouts(25, 15);
     //$twitter->setApiVersion('2');
-    $status = [];
-    if(!empty($tweetContent->url)){
+    $parameters = [];
+
+    if($config['body_concat_url'] && !empty($tweetContent->url)){
       // calculate chars an concat to $tweetContent->text
-      
+      $link_char_number = 23;
+      $max_character = 280; 
+      $text_char_num = $max_character - $link_char_number -1;
+      if(strlen($tweetContent->text) > $text_char_num){
+
+        $tweetContent->text = substr($tweetContent->text, 0, $text_char_num);
+        $tweetContent->text .= $tweetContent->url;
+        $parameters['status'] = $tweetContent->text;
+      }
+      else {
+        $tweetContent->text = substr($tweetContent->text, 0, $max_character);
+        $parameters['status'] = $tweetContent->text;
+      }
     }
+
+    if(!empty($tweetContent->image_url)){
+        /*
+        $connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, $access_token, $access_token_secret);
+        $media1 = $connection->upload('media/upload', ['media' => '/path/to/file/kitten1.jpg']);
+        $media2 = $connection->upload('media/upload', ['media' => '/path/to/file/kitten2.jpg']);
+        $parameters = [
+            'status' => 'Meow Meow Meow',
+            'media_ids' => implode(',', [$media1->media_id_string, $media2->media_id_string])
+        ];
+        $result = $connection->post('statuses/update', $parameters);
+        */
+        $media = $twitter->upload('media/upload', ['media' => $tweetContent->image_url]);
+        if(!empty($media->media_id_string)){
+          $parameters['media_ids'] = (string)$media->media_id_string;
+        }
+    }
+
 
     try {
       $statues = $twitter->post(
         "statuses/update", 
-        [
-          "status" => $tweetContent->text
-        ]
+        $parameters
       );
       if ($twitter->getLastHttpCode() == 200) {
           // Tweet posted successfully
@@ -95,11 +128,10 @@ class TwitterWrapper
         
         if(!empty($config['body_use_summary']) && !empty($body->summary)) {
          
-          $tweetContent->text = $body->sumary;
-          //Html::decodeEntities($body);
+           $tweetContent->text = Html::decodeEntities($body->sumary);
         }
         else {
-          $tweetContent->text = $body->value;
+          $tweetContent->text = Html::decodeEntities($body->value);
         }
       }
     }

@@ -89,9 +89,12 @@ class SttConfigurationForm extends ConfigFormBase {
           ),
         ];
         $form['content_box']['body_use_summary'] = [
-          '#type'   => 'checkbox',
-          '#title'  => t('Use summary if available for selected field in tweet text.'),
-          '#default_value' => $config_manager::get('body_use_summary') ?? '',
+          '#type'           => 'checkbox',
+          '#title'          => t('Use summary if available for selected field in tweet text.'),
+          '#default_value'  => $config_manager::get('body_use_summary') ?? '',
+          '#states'         => [
+            'invisible' => [':input[name="body"]' => ['value' => '']],
+          ],
         ];
 
         $form['content_box']['body_concat_url'] = [
@@ -106,7 +109,7 @@ class SttConfigurationForm extends ConfigFormBase {
           '#options'        => $options['image'],
           '#description'    => t('Select the field you want to use for the post image.'),
           '#default_value'  => $config_manager::get('image') ?? '',
-          '#empty_option'   => t('select')
+          '#empty_option'   => t('Select')
         ];
         $form['content_box']['image_style'] = [
           '#type'           => 'select',
@@ -118,6 +121,9 @@ class SttConfigurationForm extends ConfigFormBase {
             'Enter the image style you want to use, 
             if you do not select any option the original image will be used.'
           ),
+          '#states'         => [
+            'invisible' => [':input[name="image"]' => ['value' => '']],
+          ],
         ];
         $form['content_box']['options']['delete'] = [
           '#type'   => 'submit',
