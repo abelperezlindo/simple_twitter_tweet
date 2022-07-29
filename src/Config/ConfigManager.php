@@ -47,9 +47,6 @@ class ConfigManager{
       'body',
       'body_use_summary',
       'body_concat_url',
-      'image',
-      'image_style',
-      'preview_markup',
       'twitter_consumer_key',
       'twitter_consumer_secret',
       'twitter_access_token',
@@ -107,10 +104,6 @@ class ConfigManager{
       $options[$node_type->id()] = $node_type->label();
     }
     return $options;
-  }
-
-  public static function getImageStylesOptions(){
-    return \Drupal::entityQuery('image_style')->execute();
   }
   
 }
