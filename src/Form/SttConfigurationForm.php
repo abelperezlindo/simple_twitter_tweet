@@ -22,12 +22,15 @@ class SttConfigurationForm extends ConfigFormBase {
 
     public function buildForm(array $form, FormStateInterface $form_state ){
 
+      // Default settings.
+      $config = $this->config('simple_twitter_tweet.settings');
+      // Nombre del modulo en una variable 0> xq es muy largo
+      $module_name = 'simple_twitter_tweet';
+      
       // Form constructor.
       $form = parent::buildForm($form, $form_state);
-      /** @var \Drupal\Core\Utility\Token $token */
-      $tokens = \Drupal::token();
-      $config_manager   = \Drupal::service('simple_twitter_tweet.config_manager');
 
+      
       $form['sections'] = [
         '#type'         => 'vertical_tabs',
         '#title'        => t('Settings'),
@@ -49,19 +52,19 @@ class SttConfigurationForm extends ConfigFormBase {
         '#type'           => 'textfield',
         '#title'          => t('Content bundle'),
         '#description'    => t('Enter the content bundle'),
-        '#default_value'  => $config_manager::get('content')
+        '#default_value'  => $config->get('content')
       ];
       $form['content_box']['body'] = [
         '#type'           => 'textfield',
         '#title'          => t('Text field'),
         '#description'    => t('Enter the text field to use. It is only allowed to use the title of the content or a field of typestring, text, text_long or text_with_summary'),
-        '#default_value'  => $config_manager::get('body') ?? '',
+        '#default_value'  => $config->get('body')
       ];
 
       $form['content_box']['body_use_summary'] = [
         '#type'           => 'checkbox',
         '#title'          => t('Use summary if available for selected field in tweet text.'),
-        '#default_value'  => $config_manager::get('body_use_summary') ?? '',
+        '#default_value'  => $config->get('body_use_summary'),
         '#states'         => [
           'invisible' => [':input[name="body"]' => ['value' => '']],
         ],
@@ -70,7 +73,7 @@ class SttConfigurationForm extends ConfigFormBase {
       $form['content_box']['body_concat_url'] = [
         '#type'   => 'checkbox',
         '#title'  => t('Concat content url to tweet text.'),
-        '#default_value' => $config_manager::get('body_concat_url') ?? '',
+        '#default_value' => $config->get('body_concat_url'),
       ];
 
       $form['twitter'] = [
@@ -82,13 +85,13 @@ class SttConfigurationForm extends ConfigFormBase {
         '#type'           => 'textfield',
         '#title'          => t('Consumer Key'),
         '#description'    => t('Enter the consumer key'),
-        '#default_value'  => $config_manager::get('twitter_consumer_key'),
+        '#default_value'  => \Drupal::state()->get($module_name . '.twitter_consumer_key', ''),
       ];
       $form['twitter']['twitter_consumer_secret'] = [
         '#type'           => 'textfield',
         '#title'          => t('Consumer Secret'),
         '#description'    => t('Enter the consumer secret'),
-        '#default_value'  => $config_manager::get('twitter_consumer_secret'),
+        '#default_value'  => \Drupal::state()->get($module_name . '.twitter_consumer_secret', ''),
       ];
       $form['twitter']['twitter_access_token'] = [
         '#type'           => 'textfield',
@@ -98,23 +101,17 @@ class SttConfigurationForm extends ConfigFormBase {
           token allows access to the twitter account 
           in which the content of the site will be published.'
         ),
-        '#default_value'  => $config_manager::get('twitter_access_token'),
+        '#default_value'  => \Drupal::state()->get($module_name . '.twitter_access_token', ''),
       ];
       $form['twitter']['twitter_access_token_secret'] = [
         '#type'           => 'textfield',
         '#title'          => t('Access Token Secret'),
-        '#default_value'  => $config_manager::get('twitter_access_token_secret'),
+        '#default_value'  => \Drupal::state()->get($module_name . '.twitter_access_token_secret', ''),
         '#description'    => t(
           'Enter the access token secret. This access 
           token secret allows access to the twitter account 
           in which the content of the site will be published.'
         ),
-        
-      ];
-      $form['twitter']['twitter_test_connection'] = [
-        '#type'  => 'submit',
-        '#name'  => 'action_twitter_test',
-        '#value' => t('Test api access '),
       ];
 
       return $form;
@@ -125,141 +122,50 @@ class SttConfigurationForm extends ConfigFormBase {
      */
     public function submitForm(array &$form, FormStateInterface $form_state)
     {
-      $trigger = $form_state->getTriggeringElement();
-      $config_manager = \Drupal::service('simple_twitter_tweet.config_manager');
+      $trigger  = $form_state->getTriggeringElement();
+      // Nombre del modulo en una variable 0> xq es muy largo
+      $module_name = 'simple_twitter_tweet';
 
+      $config = $this->config($module_name . '.settings');
+      $config->set(
+        'content', 
+        $form_state->getValue('content')
+      );
+      $config->set(
+        'body', 
+        $form_state->getValue('body')
+      );
+      $config->set(
+        'body_use_summary', 
+        $form_state->getValue('body_use_summary')
+      );
+      $config->set(
+        'body_concat_url', 
+        $form_state->getValue('body_concat_url')
+      );
 
-      if($trigger['#type'] === 'submit' && $trigger['#name'] =='save_content_id'){
-        $config_manager::set('content', $form_state->getValue('content'));
-        return;
-      }
+      $config->save();
 
-      if($trigger['#type'] === 'submit' && $trigger['#name'] =='delete_content_config'){
-        $config_manager::setMultiple([
-          'content'           => '',
-          'body'              => '',
-          'image'             => '',
-          'image_style'       => '',
-          'body_use_summary'  => '',
-          'body_concat_url'   => '',
-        ]);
-      
-        return;
-      }
+      // configuracion del accesso a la api
+      \Drupal::state()->set(
+        $module_name . '.twitter_consumer_key', 
+        $form_state->getValue('twitter_consumer_key')
+      );
+      \Drupal::state()->set(
+        $module_name . '.twitter_consumer_secret', 
+        $form_state->getValue('twitter_consumer_secret')
+      );
+      \Drupal::state()->set(
+        $module_name . '.twitter_access_token', 
+        $form_state->getValue('twitter_access_token')
+      );
+      \Drupal::state()->set(
+        $module_name . '.twitter_access_token_secret', 
+        $form_state->getValue('twitter_access_token_secret')
+      );
 
-      if($trigger['#type'] === 'submit' && $trigger['#name'] =='content_config_preview'){
-
-        //$config_manager::setContentConfig($form_state->getValues());
-        $config_manager::setMultiple([
-          'body'              => $form_state->getValue('body'),
-          'body_use_summary'  => $form_state->getValue('body_use_summary'),
-          'body_concat_url'   => $form_state->getValue('body_concat_url'),
-          'image'             => $form_state->getValue('image'),
-          'image_style'       => $form_state->getValue('image_style'),
-        ]);
-
-        $saved_content_id = $config_manager::get('content');
-        $query = \Drupal::entityQuery('node');
-        $query
-          ->condition('type', $saved_content_id)
-          ->sort('changed', 'DESC')
-          ->range(0, 1);
-
-        $nid      = $query->execute();
-        if(empty($nid)){
-          $config_manager::set('preview_markup', 'There is no content of the selected type.');
-          return;
-        }
-
-        $node     = \Drupal::entityTypeManager()->getStorage('node')->load(array_pop($nid));
-        $message  = [];
-        $message[] = '<div class="post-preview-wrapper"><p>Previewing ' . $saved_content_id . ' type node as an example</p>'; 
-        $message[] = '<div class="post-preview-card">';
-        if($node->hasField($form_state->getValue('image'))){
-          $message[] = '<div class="post-preview-img" title="Post image">';
-
-          /** @var \Drupal\file\Plugin\Field\FieldType\FileFieldItemList $ref_list */
-          $ref_list = $node->{$form_state->getValue('image')}->referencedEntities(); 
-          if(isset($ref_list[0])){
-            /** @var \Drupal\file\Entity\File $file */
-            $file_uri = $ref_list[0]->getFileUri();
-            if(!empty($form_state->getValue('image_style'))){
-              
-              $image_uri = \Drupal\image\Entity\ImageStyle::load($form_state->getValue('image_style'))
-                ->buildUrl($file_uri);
-
-            }
-            else {
-              $image_uri = $file_uri;
-            }
-
-            // Remove the if-else when core_version_requirement >= 9.3 for this module.
-            if(\Drupal::hasService('file_url_generator')) {
-              $generator = \Drupal::service('file_url_generator');
-             
-              $img_url = $generator->generateAbsoluteString($image_uri);
-            }
-          } 
-          if(!empty($img_url)){
-            $message[] = '<img src="' . $img_url . '">';
-          }
-          $message[] = '</div>';
-        }
-
-
-        if($node->hasField($form_state->getValue('body'))){
-
-          $message[] = '<div class="post-preview-body title="Post Body"">';
-          $body =  $node->{$form_state->getValue('body')};
-          $field_type = $body->getFieldDefinition()->getType();
-          if(in_array($field_type, ['string', 'text', 'text_long', 'text_with_summary'])){
-            $tweet_text = '';
-            if($form_state->getValue('body_use_summary') && !empty($body->summary)) {
-              
-              $tweet_text = $body->summary;
-            }
-            else {
-              $tweet_text = $body->value;
-
-            }
-
-            if($form_state->getValue('body_concat_url')){
-              /**
-               * @var \Drupal\Core\Url $url 
-               */
-              $node_url  = $node->toUrl();
-              $node_url->setAbsolute(TRUE);
-              $tweet_text = $body->summary . ' ' .  $node_url->toString();
-            }
-            
-            $message[] = '<p>' . $tweet_text . '</p>';
-          }
-          $message[] = '</div>';
-        }
-        $message[] = '</div></div>';
   
-        $config_manager::set('preview_markup', implode($message));
-
-      }
-
-
-      if($trigger['#type'] === 'submit' && $trigger['#name'] =='action_twitter_test'){
-
-        $config_manager::setMultiple([
-          'twitter_consumer_key'        => $form_state->getValue('twitter_consumer_key'),
-          'twitter_consumer_secret'     => $form_state->getValue('twitter_consumer_secret'),
-          'twitter_access_token'        => $form_state->getValue('twitter_access_token'),
-          'twitter_access_token_secret' => $form_state->getValue('twitter_access_token_secret')
-        ]);
-        $twitter = \Drupal::service('simple_twitter_tweet.twitter_wrapper');
-        \Drupal::messenger()->addMessage($twitter::testApiAccess());
-        
-      }
-
-      if($trigger['#type'] === 'submit' && $trigger['#id'] == 'edit-submit'){
-        $config_manager::setMultiple($form_state->getValues());
-        return parent::submitForm($form, $form_state);
-      }   
+      return parent::submitForm($form, $form_state);
     }
 
     /**
@@ -267,7 +173,7 @@ class SttConfigurationForm extends ConfigFormBase {
      */
     public function validateForm(array &$form, FormStateInterface $form_state)
     {
-      
+        
 
     }
     

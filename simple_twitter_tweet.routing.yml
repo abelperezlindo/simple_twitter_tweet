@@ -1,7 +1,7 @@
 
 # Ruta de configuración del modulo
 simple_twitter_tweet.admin_settings:
-  path: '/admin/config/simple_twitter_tweet/adminsettings'
+  path: '/admin/config/stt/adminsettings'
   defaults:
     _form: 'Drupal\simple_twitter_tweet\Form\SttConfigurationForm'
     _title: 'Configuración para postear automaticamente noticias en redes sociales'

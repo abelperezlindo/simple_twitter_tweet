@@ -9,19 +9,14 @@ class SttNewContentSuscriber extends EntityEventInsertSubscriber {
 
   public function onEntityInsert(EntityEvent $event) {
     
-
     $entity = $event->getEntity();
 
     if ($entity instanceof \Drupal\node\NodeInterface) {
 
-      /**
-       * @var \Drupal\node\NodeInterface $entity  
-       * Se trata de una entidad Node
-       */
-      $config_manager = \Drupal::service('simple_twitter_tweet.config_manager');
-      $content_type   = $config_manager::get('content');
-      //$social_publish = $config_manager::get('publish_field');
-      // if($entity->bundle() == $content_type && isset($entity->{$social_publish})){
+      /** Se trata de una entidad Node */
+
+      $content_type = \Drupal::config('simple_twitter_tweet.settings')->get('content');
+
       if($entity->bundle() == $content_type){
         
         //$publish = $entity->{$social_publish}->value;

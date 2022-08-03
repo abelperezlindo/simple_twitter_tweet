@@ -1,0 +1,4 @@
+content: 'noticia'
+body: 'body'
+body_use_summary: 1
+body_concat_url: 1
