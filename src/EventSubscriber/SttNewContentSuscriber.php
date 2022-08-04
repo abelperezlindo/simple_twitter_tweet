@@ -19,12 +19,22 @@ class SttNewContentSuscriber extends EntityEventInsertSubscriber {
 
       if($entity->bundle() == $content_type){
         
-        //$publish = $entity->{$social_publish}->value;
-        //if($publish->value === ''){
-          /** @var Drupal\simple_twitter_tweet\Utils\TwitterWrapper $twitter */
-          $twitter = \Drupal::service('simple_twitter_tweet.twitter_wrapper');
-          $twitter::tweetEntity($entity);
-        //}
+        /*
+        $publish = $entity->{$social_publish}->value;
+        if($publish->value === ''){
+
+        }
+        */
+
+        /** @var Drupal\simple_twitter_tweet\Utils\TwitterWrapper $twitter */
+        $twitter    = \Drupal::service('simple_twitter_tweet.twitter_wrapper');
+        /** @var Drupal\simple_twitter_tweet\Utils\TwitterTextFromEntity $textGetter (utils) */
+        $textGetter = \Drupal::service('simple_twitter_tweet.get_text_entity');
+
+
+        $status = $textGetter::getMessage($entity);
+        $twitter::tweet($status);
+        
       }
     }
   }

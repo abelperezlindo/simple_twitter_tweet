@@ -19,15 +19,24 @@ class SttConfigurationForm extends ConfigFormBase {
       ];
     }
 
-
     public function buildForm(array $form, FormStateInterface $form_state ){
 
       // Default settings.
       $config = $this->config('simple_twitter_tweet.settings');
-      // Nombre del modulo en una variable 0> xq es muy largo
-      $module_name = 'simple_twitter_tweet';
-      
+      // Nombre del modulo en una variable > xq es muy largo
+      $module_name      = 'simple_twitter_tweet';
+      $consumer_key     = \Drupal::state()->get($module_name . '.twitter_consumer_key', '');
+      $consumer_secret  = \Drupal::state()->get($module_name . '.twitter_consumer_secret', '');
+      $token            = \Drupal::state()->get($module_name . '.twitter_access_token', '');
+      $token_secret     = \Drupal::state()->get($module_name . '.twitter_access_token_secret', '');
       // Form constructor.
+      $message = '';
+      if(!empty($consumer_key) && !empty($consumer_key)){
+        if(!empty($token) && !empty($token_secret)){
+          $twitter = \Drupal::service('simple_twitter_tweet.twitter_wrapper');
+          $message = $twitter::testApiAccess($consumer_key, $consumer_secret, $token, $token_secret);
+        }
+      }
       $form = parent::buildForm($form, $form_state);
 
       
@@ -81,17 +90,24 @@ class SttConfigurationForm extends ConfigFormBase {
         '#title'  => t('Twitter API Access Settings'),
         '#group' => 'sections',
       ];
+      if(!empty($message)){
+        $form['twitter']['message'] = [
+          '#type'   => 'markup',
+          '#markup' => t('<div><p><strong>Respuesta de la API:</strong></p><pre>@message</pre></div>', ['@message' => $message]),
+        ];
+      }
+
       $form['twitter']['twitter_consumer_key'] = [
         '#type'           => 'textfield',
         '#title'          => t('Consumer Key'),
         '#description'    => t('Enter the consumer key'),
-        '#default_value'  => \Drupal::state()->get($module_name . '.twitter_consumer_key', ''),
+        '#default_value'  => $consumer_key,
       ];
       $form['twitter']['twitter_consumer_secret'] = [
         '#type'           => 'textfield',
         '#title'          => t('Consumer Secret'),
         '#description'    => t('Enter the consumer secret'),
-        '#default_value'  => \Drupal::state()->get($module_name . '.twitter_consumer_secret', ''),
+        '#default_value'  => $consumer_secret,
       ];
       $form['twitter']['twitter_access_token'] = [
         '#type'           => 'textfield',
@@ -101,18 +117,19 @@ class SttConfigurationForm extends ConfigFormBase {
           token allows access to the twitter account 
           in which the content of the site will be published.'
         ),
-        '#default_value'  => \Drupal::state()->get($module_name . '.twitter_access_token', ''),
+        '#default_value'  => $token,
       ];
       $form['twitter']['twitter_access_token_secret'] = [
         '#type'           => 'textfield',
         '#title'          => t('Access Token Secret'),
-        '#default_value'  => \Drupal::state()->get($module_name . '.twitter_access_token_secret', ''),
+        '#default_value'  => $token_secret,
         '#description'    => t(
           'Enter the access token secret. This access 
           token secret allows access to the twitter account 
           in which the content of the site will be published.'
         ),
       ];
+      
 
       return $form;
     }
@@ -146,7 +163,7 @@ class SttConfigurationForm extends ConfigFormBase {
 
       $config->save();
 
-      // configuracion del accesso a la api
+      // configuracion del acceso a la api
       \Drupal::state()->set(
         $module_name . '.twitter_consumer_key', 
         $form_state->getValue('twitter_consumer_key')
@@ -173,7 +190,7 @@ class SttConfigurationForm extends ConfigFormBase {
      */
     public function validateForm(array &$form, FormStateInterface $form_state)
     {
-        
+
 
     }
     
