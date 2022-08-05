@@ -84,6 +84,20 @@ class SttConfigurationForm extends ConfigFormBase {
         '#title'  => t('Concat content url to tweet text.'),
         '#default_value' => $config->get('body_concat_url'),
       ];
+      $publishing_options = \Drupal::service('publishing_options.content'); // servicio provisto por pub_options
+      $po                 = $publishing_options->getPublishingOptions();
+      $options            = [];
+
+      foreach($po as $item){
+        $options[$item->pubid] = t($item->title);
+      }
+      $form['content_box']['pubid'] = [
+        '#type'           => 'select',
+        '#title'          => t('Publishing option'),
+        '#options'        =>  $options,
+        '#description'    => t('Publication option that indicates if the content should be published on twitter or not.'),
+        '#default_value'  => $config->get('pub_option_id'),
+      ];
 
       $form['twitter'] = [
         '#type'   => 'details',
@@ -160,7 +174,10 @@ class SttConfigurationForm extends ConfigFormBase {
         'body_concat_url', 
         $form_state->getValue('body_concat_url')
       );
-
+      $config->set(
+        'pub_option_id', 
+        $form_state->getValue('pubid')
+      );
       $config->save();
 
       // configuracion del acceso a la api

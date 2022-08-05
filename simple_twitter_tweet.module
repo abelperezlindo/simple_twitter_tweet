@@ -1,2 +1,46 @@
 <?php
+use Drupal\Core\Entity\EntityInterface;
 
+function simple_twitter_tweet_entity_postsave(EntityInterface $entity, $op){
+
+  $config         = \Drupal::config('simple_twitter_tweet.settings');
+  $cunfig_bundle  = $config->get('content');
+  $config_pubid   = $config->get('pub_option_id');
+  $id             = $entity->id();
+  $bundle         = $entity->bundle();
+  $entityIsNode   = $entity instanceof \Drupal\node\NodeInterface;
+
+
+  if ($entityIsNode) {    
+  
+    if($bundle == $cunfig_bundle){
+      
+      $publish_this = false;
+      if(\Drupal::moduleHandler()->moduleExists('publishing_options')){
+
+        $publishing_options = \Drupal::service('publishing_options.content'); // servicio provisto por pub_options
+        $op = $publishing_options->getNode($id, $config_pubid);
+        if( !empty($op) && $op->selected == 1){
+          $publish_this = true;
+        }
+      }
+    } 
+
+    if($publish_this){
+
+      /** @var Drupal\simple_twitter_tweet\Utils\TwitterWrapper $twitter */
+      $twitter    = \Drupal::service('simple_twitter_tweet.twitter_wrapper');
+      /** @var Drupal\simple_twitter_tweet\Utils\TwitterTextFromEntity $textGetter (utils) */
+      $textGetter = \Drupal::service('simple_twitter_tweet.get_text_entity');
+
+
+      $status_message = $textGetter::getMessage($entity);
+      $tweeted = $twitter::tweet($status_message);
+      if($tweeted){
+        \Drupal::messenger()->addStatus(t('Se creó un nuevo tweet'));
+      }
+
+    }
+  }
+  return;
+}

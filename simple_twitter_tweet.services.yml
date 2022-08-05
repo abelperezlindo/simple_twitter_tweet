@@ -1,9 +1,4 @@
 services:
-  simple_twitter_tweet.subscriber:
-    class: Drupal\simple_twitter_tweet\EventSubscriber\SttNewContentSuscriber
-    tags:
-      - {name: event_subscriber}
-
   simple_twitter_tweet.get_text_entity:
     class:  Drupal\simple_twitter_tweet\Utils\TwitterTextFromEntity
 

@@ -2,12 +2,7 @@
 
 namespace Drupal\simple_twitter_tweet\Utils;
 
-use \Drupal\node\NodeInterface;
-use \Drupal\Component\Utility\Html;
-
 use \Abraham\TwitterOAuth\TwitterOAuth;
-use stdClass;
-use Symfony\Component\Validator\Constraints\Length;
 
 class TwitterWrapper
 {
@@ -15,26 +10,16 @@ class TwitterWrapper
     
     $m_name = 'simple_twitter_tweet';
     $twitter = new TwitterOAuth(
-      \Drupal::state()->get($m_name . 'twitter_consumer_key', ''),
-      \Drupal::state()->get($m_name . 'twitter_consumer_secret', ''),
-      \Drupal::state()->get($m_name . 'twitter_access_token', ''),
-      \Drupal::state()->get($m_name . 'twitter_access_token_secret', '')
+      \Drupal::state()->get($m_name . '.twitter_consumer_key', ''),
+      \Drupal::state()->get($m_name . '.twitter_consumer_secret', ''),
+      \Drupal::state()->get($m_name . '.twitter_access_token', ''),
+      \Drupal::state()->get($m_name . '.twitter_access_token_secret', '')
     );
     $twitter->setTimeouts(25, 15);
 
-    /**
-     * @var array $parameters:
-     *  $parameters['status']
-     *  $parameters['media_ids']
-     */
-    $parameters = [];
-    $parameters['status'] = $text;
-
     try {
-      $statues = $twitter->post(
-        "statuses/update", 
-        $parameters
-      );
+      $statues = $twitter->post("statuses/update", ["status" => $text]);
+
       if ($twitter->getLastHttpCode() == 200) {
           // Tweet posted successfully
           \Drupal::logger('simple_twitter_tweet')->notice('New tweet created');

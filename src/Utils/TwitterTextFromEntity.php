@@ -26,20 +26,19 @@ class TwitterTextFromEntity
   private static function getTextValue(NodeInterface $entity, ImmutableConfig $config){
     $status = '';
     
-    $text_field  =  $entity->{$config->get('body') };
+    $text_field  =  $entity->{$config->get('body')};
     $field_type = $text_field->getFieldDefinition()->getType();
 
     if(in_array($field_type, ['string', 'text', 'text_with_summary', 'string_long'])){
       
-      $status = Html::decodeEntities($text_field->value);
+      $status = $text_field->value;
       if(!empty($config->get('body_use_summary')) && !empty($text_field->summary)) {
-         $text = Html::decodeEntities($text_field->sumary);
+         $status = $text_field->summary;
       }
-      return $text;
     }
     
     if($config->get('body') === 'title'){
-      $status = Html::decodeEntities($entity->getTitle());
+      $status = $entity->getTitle();
     } 
 
     if($config->get('body_concat_url')){
@@ -47,7 +46,7 @@ class TwitterTextFromEntity
       $status = self::calculateCharNumberTW($status, $link);
     }
 
-    return $status;
+    return strip_tags($status);
   }
   /**
    * Retorna texto para nuevo status que no supera los max de caracteres
@@ -70,7 +69,7 @@ class TwitterTextFromEntity
 
     $tweet_max    = 280; // Maximo de caracteres en un tweet
     $https_len    = 24; // Los caracteres que se pierden por incluir un link en el tweet + espacio
-    $text         = Html::decodeEntities($text); //Clear
+    $text         = strip_tags($text, null); //Clear
 
     if(empty($link)){
       // tweet solo texto
