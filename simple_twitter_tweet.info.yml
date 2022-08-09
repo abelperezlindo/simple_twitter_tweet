@@ -1,7 +1,7 @@
 name: Simple Twitter Tweet
 type: module
 description: 'Tweet content in your twitter acount'
-package: simple tools
+package: ideasOrange
 core: 8.x
 core_version_requirement: ^8 || ^9
 
