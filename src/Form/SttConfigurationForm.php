@@ -143,6 +143,17 @@ class SttConfigurationForm extends ConfigFormBase {
           in which the content of the site will be published.'
         ),
       ];
+      $form['doc'] = [
+        '#type'         => 'details',
+        '#title'        => t('Docs'),
+        '#group'        => 'sections',
+        '#description'  => t(''),
+      ];
+
+      $form['doc']['link'] = [
+        '#type'         => 'markup',
+        '#markup'       => t('<a target="_blank" href="https://github.com/abelperezlindo/simple_twitter_tweet/blob/main/README.md">Ver documentación</a>')
+      ];
       
 
       return $form;
