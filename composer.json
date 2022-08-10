@@ -1,0 +1,29 @@
+{
+  "name": "ideasorange/simple_twitter_tweet",
+  "description": "Tweet content in your twitter acount",
+  "type": "drupal-module",
+  "license": "GPL-2.0-or-later",
+  "authors": [
+      {
+          "name": "Abel Perez Lindo (abelpzl, aperezlindo)",
+          "homepage": "https://www.drupal.org/u/abelpzl",
+          "role": "Maintainer"
+      }
+  ],
+  "homepage": "https://github.com/abelperezlindo/simple_twitter_tweet",
+  "repositories":[
+    {
+        "type": "vcs",
+        "url": "https://github.com/abelperezlindo/simple_twitter_tweet.git"
+    }
+  ],
+  "support": {
+      "issues": "https://github.com/abelperezlindo/simple_twitter_tweet/issues",
+      "source": "https://github.com/abelperezlindo/simple_twitter_tweet/releases"
+  },
+  "require": {
+    "abraham/twitteroauth": "^4.0",
+    "drupal/hook_post_action": "^1.1",
+    "drupal/pub_options": "^2.0"
+  }
+}
