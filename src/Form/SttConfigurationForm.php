@@ -39,13 +39,11 @@ class SttConfigurationForm extends ConfigFormBase {
       }
       $form = parent::buildForm($form, $form_state);
 
-      
       $form['sections'] = [
         '#type'         => 'vertical_tabs',
         '#title'        => t('Settings'),
         '#default_tab'  =>'edit-content-box'
       ];
-
       $form['content_box'] = [
         '#type'         => 'details',
         '#title'        => t('Content Settings'),
@@ -56,7 +54,6 @@ class SttConfigurationForm extends ConfigFormBase {
           social networks when the content is created.'
         ),
       ];
-
       $form['content_box']['content'] = [
         '#type'           => 'textfield',
         '#title'          => t('Content bundle'),
@@ -69,7 +66,6 @@ class SttConfigurationForm extends ConfigFormBase {
         '#description'    => t('Enter the text field to use. It is only allowed to use the title of the content or a field of typestring, text, text_long or text_with_summary'),
         '#default_value'  => $config->get('body')
       ];
-
       $form['content_box']['body_use_summary'] = [
         '#type'           => 'checkbox',
         '#title'          => t('Use summary if available for selected field in tweet text.'),
@@ -155,7 +151,6 @@ class SttConfigurationForm extends ConfigFormBase {
         '#markup'       => t('<a target="_blank" href="https://github.com/abelperezlindo/simple_twitter_tweet/blob/main/README.md">Ver documentación</a>')
       ];
       
-
       return $form;
     }
   
@@ -208,7 +203,6 @@ class SttConfigurationForm extends ConfigFormBase {
         $module_name . '.twitter_access_token_secret', 
         $form_state->getValue('twitter_access_token_secret')
       );
-
   
       return parent::submitForm($form, $form_state);
     }
@@ -218,7 +212,6 @@ class SttConfigurationForm extends ConfigFormBase {
      */
     public function validateForm(array &$form, FormStateInterface $form_state)
     {
-
 
     }
     

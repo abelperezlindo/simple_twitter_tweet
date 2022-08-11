@@ -4,3 +4,7 @@ services:
 
   simple_twitter_tweet.twitter_wrapper:
     class:  Drupal\simple_twitter_tweet\Utils\TwitterWrapper
+
+  simple_twitter_tweet.tw_content:
+    class: Drupal\simple_twitter_tweet\Services\TweetedContent
+    arguments: ['@database']

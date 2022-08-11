@@ -23,7 +23,7 @@ class TwitterWrapper
       if ($twitter->getLastHttpCode() == 200) {
           // Tweet posted successfully
           \Drupal::logger('simple_twitter_tweet')->notice('New tweet created');
-          return true;
+          return $statues->id_str;
       } else if(isset($statues->errors)) {
           // Handle error case
           \Drupal::logger('simple_twitter_tweet')->error('an error has occurred: ' . $statues->errors[0]->message );

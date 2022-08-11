@@ -1,0 +1,78 @@
+<?php
+
+use Drupal\Core\Datetime\DrupalDateTime;
+
+function simple_twitter_tweet_schema(){
+
+  // Image Field Caption table.
+  $schema['stt_tweet'] = [
+    'description' => 'Link a tweet with a node.',
+    'fields' => [
+      'id' => [
+        'description' => 'The {publishing_options}.pubid this record affects.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'entity_id' => [
+        'description' => 'The entity id attached to this tweet',
+        'type' => 'int',
+        'length' => 11,
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'tweet_content' => [
+        'description' => 'The content of tweet',
+        'type'        => 'varchar',
+        'length'      => 512,
+        'not null'    => TRUE,
+        'default'     => '',
+      ],
+      'tweet_id' => [
+        'description' => 'Tweet id Provided by twitter',
+        'type'        => 'varchar',
+        'length'      => 128,
+        'not null'    => TRUE,
+        'default'     => '',
+      ],
+      'created' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Unix timestamp of node and newsroom association when created.',
+      ],
+    ],
+    'unique keys' => [
+      'id' => ['id'],
+    ],
+    'indexes' => [
+      'entity_id' => ['entity_id'],
+    ],
+    'primary key' => ['id'],
+  ];
+
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function simple_twitter_tweet_install() {
+
+  $config = \Drupal::service('config.factory')->getEditable('simple_twitter_tweet.settings');
+  $up_default = $config->get('up_timestamp');
+  if($up_default == 0){
+    // In a special case you could enter a non-zero time stamp
+    $up_timestamp = new DrupalDateTime('now');
+    // Set and save new message value.
+    $config->set('up_timestamp', $up_timestamp->getTimestamp())->save();
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function simple_twitter_tweet_uninstall() {
+  
+}

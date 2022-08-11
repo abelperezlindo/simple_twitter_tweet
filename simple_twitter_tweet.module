@@ -1,46 +1,66 @@
 <?php
 use Drupal\Core\Entity\EntityInterface;
 
-function simple_twitter_tweet_entity_postsave(EntityInterface $entity, $op){
-
+/**
+ *  Implement hook_node_postsave() provided by the hook post action module
+ *  @param EntityInterface $entity La entidad guardada
+ *  @param String $op la operacion realizada
+ *  @return void
+ */
+function simple_twitter_tweet_node_postsave(EntityInterface $entity, $operation){
+  /**
+   *  Internal variables
+   *  @var Drupal\node\NodeInterface $entity
+   *  @var Drupal\simple_twitter_tweet\Utils\TwitterWrapper $twitter 
+   *  @var Drupal\simple_twitter_tweet\Utils\TwitterTextFromEntity $textGetter (utils) 
+   *  @var Drupal\simple_twitter_tweet\Services\TweetedContent $twContent
+   */
   $config         = \Drupal::config('simple_twitter_tweet.settings');
   $cunfig_bundle  = $config->get('content');
+  $up_timestamp   = $config->get('up_timestamp');
   $config_pubid   = $config->get('pub_option_id');
   $id             = $entity->id();
   $bundle         = $entity->bundle();
-  $entityIsNode   = $entity instanceof \Drupal\node\NodeInterface;
 
+  if ($entity->status->getString() == 0) {
+    // If node is not published, return
+    return;
+  }
 
-  if ($entityIsNode) {    
-  
-    if($bundle == $cunfig_bundle){
-      
-      $publish_this = false;
-      if(\Drupal::moduleHandler()->moduleExists('publishing_options')){
+  if($bundle == $cunfig_bundle){ 
 
-        $publishing_options = \Drupal::service('publishing_options.content'); // servicio provisto por pub_options
-        $op = $publishing_options->getNode($id, $config_pubid);
-        if( !empty($op) && $op->selected == 1){
-          $publish_this = true;
+    if(\Drupal::moduleHandler()->moduleExists('publishing_options')){
+
+      $publishing_options = \Drupal::service('publishing_options.content'); // servi prov  por pub_options
+      $op = $publishing_options->getNode($id, $config_pubid);
+      if( !empty($op) && $op->selected == 1){
+
+        $twitter    = \Drupal::service('simple_twitter_tweet.twitter_wrapper');
+        $textGetter = \Drupal::service('simple_twitter_tweet.get_text_entity');
+        $twContent = \Drupal::service('simple_twitter_tweet.tw_content');
+
+        if($operation == 'insert'){
+          $status_message = $textGetter::getMessage($entity);
+          $tweeted = $twitter::tweet($status_message);
+          if($tweeted !== false){
+            \Drupal::messenger()->addStatus(t('Se creó un nuevo tweet'));
+            $twContent->set($id, $status_message, $tweeted);
+          }
+        }
+        else if($operation == 'update' && !$twContent->isTweeted($id)){
+          $created = $entity->getCreatedTime();
+
+          if($up_timestamp != 0 && $created > $up_timestamp){
+            $status_message = $textGetter::getMessage($entity);
+            $tweeted = $twitter::tweet($status_message);
+            if($tweeted !== false){
+              \Drupal::messenger()->addStatus(t('Se creó un nuevo tweet'));
+              $twContent->set($id, $status_message, $tweeted);
+            }
+          }
         }
       }
-    } 
-
-    if($publish_this){
-
-      /** @var Drupal\simple_twitter_tweet\Utils\TwitterWrapper $twitter */
-      $twitter    = \Drupal::service('simple_twitter_tweet.twitter_wrapper');
-      /** @var Drupal\simple_twitter_tweet\Utils\TwitterTextFromEntity $textGetter (utils) */
-      $textGetter = \Drupal::service('simple_twitter_tweet.get_text_entity');
-
-
-      $status_message = $textGetter::getMessage($entity);
-      $tweeted = $twitter::tweet($status_message);
-      if($tweeted){
-        \Drupal::messenger()->addStatus(t('Se creó un nuevo tweet'));
-      }
-
     }
-  }
+  } 
   return;
 }
