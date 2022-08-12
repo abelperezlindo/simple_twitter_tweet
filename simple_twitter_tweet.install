@@ -9,7 +9,7 @@ function simple_twitter_tweet_schema(){
     'description' => 'Link a tweet with a node.',
     'fields' => [
       'id' => [
-        'description' => 'The {publishing_options}.pubid this record affects.',
+        'description' => 'Primary key of row.',
         'type' => 'serial',
         'unsigned' => TRUE,
         'not null' => TRUE,
