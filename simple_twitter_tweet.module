@@ -33,7 +33,7 @@ function simple_twitter_tweet_node_postsave(EntityInterface $entity, $operation)
 
     if(\Drupal::moduleHandler()->moduleExists('publishing_options')){
 
-      $publishing_options = \Drupal::service('publishing_options.content'); // servi prov  por pub_options
+      $publishing_options = \Drupal::service('publishing_options.content'); // pub_options
       $op = $publishing_options->getNode($id, $config_pubid);
       if( !empty($op) && $op->selected == 1){
 
@@ -45,7 +45,8 @@ function simple_twitter_tweet_node_postsave(EntityInterface $entity, $operation)
           $status_message = $textGetter::getMessage($entity);
           $tweeted = $twitter::tweet($status_message);
           if($tweeted !== false){
-            \Drupal::messenger()->addStatus(t('Se creó un nuevo tweet'));
+            \Drupal::logger('simple_twitter_tweet')
+              ->info('Created a new Tweet');
             $twContent->set($id, $status_message, $tweeted);
           }
         }
@@ -56,7 +57,8 @@ function simple_twitter_tweet_node_postsave(EntityInterface $entity, $operation)
             $status_message = $textGetter::getMessage($entity);
             $tweeted = $twitter::tweet($status_message);
             if($tweeted !== false){
-              \Drupal::messenger()->addStatus(t('Se creó un nuevo tweet'));
+              \Drupal::logger('simple_twitter_tweet')
+              ->info('Created a new Tweet');
               $twContent->set($id, $status_message, $tweeted);
             }
           }

@@ -1,6 +1,6 @@
 simple_twitter_tweet.admin_settings:  
   title: 'Simple Twitter Tweet'  
   route_name: 'simple_twitter_tweet.admin_settings'
-  description: 'Configure Twitter API access and content to use'  
+  description: 'Tweet content in your twitter acount'  
   parent: system.admin_config_system
   weight: 99 
