@@ -1,8 +1,10 @@
 <?php
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
 
 /**
  *  Implement hook_node_postsave() provided by the hook post action module
+ *  
  *  @param EntityInterface $entity La entidad guardada
  *  @param String $op la operacion realizada
  *  @return void
@@ -37,7 +39,7 @@ function simple_twitter_tweet_node_postsave(EntityInterface $entity, $operation)
 
         $twitter    = \Drupal::service('simple_twitter_tweet.twitter_wrapper');
         $textGetter = \Drupal::service('simple_twitter_tweet.get_text_entity');
-        $twContent = \Drupal::service('simple_twitter_tweet.tw_content');
+        $twContent  = \Drupal::service('simple_twitter_tweet.tw_content');
 
         if($operation == 'insert'){
           $status_message = $textGetter::getMessage($entity);
@@ -63,4 +65,23 @@ function simple_twitter_tweet_node_postsave(EntityInterface $entity, $operation)
     }
   } 
   return;
+}
+
+/**
+ * Implements hook_help().
+ */
+function simple_twitter_tweet_fields_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the conditional_fields module.
+    case 'help.page.simple_twitter_tweet':
+      $readme = '<a target="_blank" href="https://github.com/abelperezlindo/simple_twitter_tweet/blob/main/README.md">readme</a>';
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('It allows to automatically create tweets in a user\'s twitter account when new content is created on the website.') . '</p>';
+      $output .= '<p>' . t('Then configure the content you want to use, and access to the twitter api') . '</p>';
+      $output .= '<p>' . t('More information can be found at @link', ['@link' => $readme] ) . '</p>';
+      return $output;
+
+    default:
+  }
 }
